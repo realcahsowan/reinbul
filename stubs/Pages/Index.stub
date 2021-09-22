@@ -112,10 +112,10 @@ export default function Index() {
                     <td className="py-3 has-text-centered">{pages}</td>
                     <td className="py-3 has-text-centered">{price}</td>
                     <td className="py-3 has-text-right">
-                      <Link href={route('books.edit', id)}>
+                      <Link href={route('[resource_data].edit', id)}>
                         <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
                       </Link>
-                      <a onClick={() => confirmDelete(route('books.destroy', id))} className="ml-4 has-text-danger">
+                      <a onClick={() => confirmDelete(route('[resource_data].destroy', id))} className="ml-4 has-text-danger">
                         <FontAwesomeIcon icon={faTrash}></FontAwesomeIcon>
                       </a>
                     </td>
