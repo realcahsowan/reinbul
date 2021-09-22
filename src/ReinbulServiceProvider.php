@@ -4,6 +4,7 @@ namespace RealCahsowan\Reinbul;
 
 use Illuminate\Support\ServiceProvider;
 use RealCahsowan\Reinbul\Console\ReinbulMakeCommand;
+use RealCahsowan\Reinbul\Console\ReinbulRemoveCommand;
 
 class ReinbulServiceProvider extends ServiceProvider 
 {
@@ -12,6 +13,7 @@ class ReinbulServiceProvider extends ServiceProvider
 		if ($this->app->runningInConsole()) {
 	        $this->commands([
 	            ReinbulMakeCommand::class,
+	            ReinbulRemoveCommand::class,
 	        ]);
 	    }
 	}
