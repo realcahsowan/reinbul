@@ -20,10 +20,10 @@ class ReinbulMakeCommand extends GeneratorCommand
             " model generated, run artisan migrate, then please update your route:";
 
         $routeText =
-            "Route::resource('" .
-            Str::plural(Str::lower($name)) .
-            "', Controllers\\" .
-            Str::plural(Str::title($name)) .
+        "Route::resource('" .
+        Str::plural(Str::lower($name)) .
+        "', Controllers\\" .
+        Str::plural(Str::title($name)) .
             "Controller::class);";
 
         // Generate model file
@@ -66,10 +66,10 @@ class ReinbulMakeCommand extends GeneratorCommand
     {
         return base_path(
             "database/migrations/" .
-                date("Y_m_d_His") .
-                "_create_" .
-                Str::plural(Str::lower($name)) .
-                "_table.php"
+            date("Y_m_d_His") .
+            "_create_" .
+            Str::plural(Str::lower($name)) .
+            "_table.php"
         );
     }
 
@@ -77,8 +77,8 @@ class ReinbulMakeCommand extends GeneratorCommand
     {
         return app_path(
             "Http/Controllers/" .
-                Str::plural(Str::title($name)) .
-                "Controller.php"
+            Str::plural(Str::title($name)) .
+            "Controller.php"
         );
     }
 
@@ -124,7 +124,7 @@ class ReinbulMakeCommand extends GeneratorCommand
 
     public function getStubContent($type)
     {
-        $stubsDirectory = "packages/realcahsowan/reinbul/stubs/";
+        $stubsDirectory = "/vendor/realcahsowan/reinbul/stubs/";
 
         $paths = [
             "model" => base_path($stubsDirectory . "Model.stub"),
