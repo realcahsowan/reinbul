@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class ReinbulMakeCommand extends GeneratorCommand
 {
-    protected $name = "make:reinbul";
+    protected $signature = "make:reinbul {name} {--factory}";
     protected $description = "Generate REINBUL resource files.";
 
     public function handle()
@@ -53,6 +53,16 @@ class ReinbulMakeCommand extends GeneratorCommand
             File::put($path, $this->getResourceContent($name, $type));
         }
 
+        // Generate factory file
+        $factory = $this->option('factory');
+
+        if ($factory) {
+            File::put(
+                $this->getFactoryPath($name),
+                $this->getResourceContent($name, "factory")
+            );
+        }
+
         $this->info($message);
         $this->warn($routeText);
     }
@@ -60,6 +70,11 @@ class ReinbulMakeCommand extends GeneratorCommand
     public function getModelPath($name)
     {
         return app_path("Models/" . Str::title($name) . ".php");
+    }
+
+    public function getFactoryPath($name)
+    {
+        return base_path("database/factories/" . Str::title($name) . "Factory.php");
     }
 
     public function getMigrationPath($name)
@@ -128,6 +143,7 @@ class ReinbulMakeCommand extends GeneratorCommand
 
         $paths = [
             "model" => base_path($stubsDirectory . "Model.stub"),
+            "factory" => base_path($stubsDirectory . "Factory.stub"),
             "migration" => base_path($stubsDirectory . "Migration.stub"),
             "controller" => base_path($stubsDirectory . "Controller.stub"),
             "pages_index" => base_path($stubsDirectory . "Pages/Index.stub"),
