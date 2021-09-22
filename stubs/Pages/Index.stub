@@ -1,0 +1,145 @@
+import React from 'react';
+import Authenticated from '@/Layouts/Authenticated';
+import { Head, Link, usePage } from '@inertiajs/inertia-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import Pagination from '@/Shared/Pagination';
+import SearchFilter from '@/Shared/SearchFilter';
+import ConfirmationModal from '@/Components/DeleteConfirmationModal';
+
+export default function Index() {
+  const { users, auth, errors, [resource_data] } = usePage().props;
+  const { data, links } = [resource_data];
+  const ids = data.map(b => b.id);
+
+  const [checkedItems, setCheckedItems] = React.useState([]);
+  const [showConfirmationModal, setShowConfirmationModal] = React.useState(false);
+  const [deleteUrl, setDeleteUrl] = React.useState();
+
+  const confirmDelete = (url) => {
+    setDeleteUrl(url);
+    setShowConfirmationModal(true);
+  }
+
+  const handleBatchDelete = () => {
+    const batchDeleteRoute = route('[resource_data].destroy', {[resource_data]:ids[0], mode: 'batch', items: JSON.stringify(checkedItems)});
+    confirmDelete(batchDeleteRoute);
+  }
+
+	return (
+		<Authenticated
+      auth={auth}
+      header={<h2>[resource]</h2>}
+    >
+      <Head title="[resource]" />
+
+      <div className="level">
+        <div className="level-left">
+          <Link href={route('[resource_data].create')} className="button is-primary">
+            <span className="icon">
+              <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
+            </span>
+            <span>Add New [model]</span>
+          </Link>
+        </div>
+        <div className="level-right">
+          <SearchFilter />
+        </div>
+      </div>
+
+      {checkedItems.length > 0 && (
+        <div className="box shadow-lite has-background-grey-light has-text-light animate__animated animate__pulse is-flex is-align-items-center">
+          <div className="is-flex-grow-0 mr-3">
+            <button className="delete" onClick={ () => setCheckedItems([]) }></button>
+          </div>
+          <div className="is-flex-grow-1">
+            <p>{ checkedItems.length } items selected</p>
+          </div>
+          <div className="is-flex-grow-0">
+            <button 
+              className="button is-danger ml-3"
+              onClick={handleBatchDelete}
+            >
+              <span className="icon">
+                <FontAwesomeIcon icon={faTrash}></FontAwesomeIcon>
+              </span>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {data.length > 0 && (
+        <React.Fragment>
+          <div className="box">
+            <table className="table is-fullwidth">
+              <thead>
+                <tr>
+                  <th className="py-3">
+                    <input 
+                      type="checkbox" 
+                      onChange={
+                        (e) => e.target.checked 
+                          ? setCheckedItems(ids) 
+                          : setCheckedItems([])} 
+                    />
+                  </th>
+                  <th className="py-3">Title</th>
+                  <th className="py-3">Author</th>
+                  <th className="py-3">Year</th>
+                  <th className="py-3 has-text-centered">Pages</th>
+                  <th className="py-3 has-text-centered">Price</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map(({id, title, author, year, pages, price}) => (
+                  <tr key={id}>
+                    <td className="py-3">
+                      <input 
+                        type="checkbox" 
+                        onChange={
+                          (e) => e.target.checked 
+                            ? setCheckedItems([...checkedItems, id]) 
+                            : setCheckedItems(checkedItems.filter(i => i !== id))
+                        } 
+                        checked={checkedItems.includes(id)}
+                      />
+                    </td>
+                    <td className="py-3">{title}</td>
+                    <td className="py-3">{author}</td>
+                    <td className="py-3">{year}</td>
+                    <td className="py-3 has-text-centered">{pages}</td>
+                    <td className="py-3 has-text-centered">{price}</td>
+                    <td className="py-3 has-text-right">
+                      <Link href={route('books.edit', id)}>
+                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                      </Link>
+                      <a onClick={() => confirmDelete(route('books.destroy', id))} className="ml-4 has-text-danger">
+                        <FontAwesomeIcon icon={faTrash}></FontAwesomeIcon>
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <Pagination links={links} />
+        </React.Fragment>
+      )}
+
+      {data.length == 0 && (
+        <div className="notification is-warning">No data found, please create new one!</div>
+      )}
+
+      {/* CONFIRMATION MODAL */}
+      <ConfirmationModal 
+        show={showConfirmationModal} 
+        showSetter={setShowConfirmationModal} 
+        url={deleteUrl}
+        urlSetter={setDeleteUrl}
+      />
+    </Authenticated>
+  );
+};

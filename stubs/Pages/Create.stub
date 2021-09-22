@@ -1,0 +1,43 @@
+import React from 'react';
+import { Inertia } from '@inertiajs/inertia';
+import { Head, Link, usePage } from '@inertiajs/inertia-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLongArrowAltLeft } from '@fortawesome/free-solid-svg-icons';
+import Authenticated from '@/Layouts/Authenticated';
+import [model]Form from '@/Pages/[resource]/Form';
+
+export default () => {
+  const { users, auth, errors } = usePage().props;
+
+  const sendForm = (data) => {
+    Inertia.post(route('[resource_data].store'), data, {
+      forceFormData: true,
+    });
+  }
+
+  return (
+    <Authenticated
+      auth={auth}
+      errors={errors}
+      header={<h2>[model]</h2>}
+    >
+      <Head title="Add New [model]" />
+
+      <div className="level">
+        <div className="level-left">
+          <Link href={route('[resource_data].index')} className="button is-primary">
+            <span className="icon">
+              <FontAwesomeIcon icon={faLongArrowAltLeft}></FontAwesomeIcon>
+            </span>
+            <span>[resource] List</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="box py-6">
+        {/* FORM */}
+        <[model]Form submitHandler={sendForm} errorsBag={errors} />
+      </div>
+    </Authenticated>
+  );
+};

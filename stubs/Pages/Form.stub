@@ -1,0 +1,254 @@
+import React from 'react';
+import { useForm } from '@inertiajs/inertia-react';
+import Textarea from '@/Components/Textarea';
+import Select from '@/Components/Select';
+import Input from '@/Components/Input';
+
+export default ({submitHandler, errorsBag: errors, model }) => {
+	let modelData = model ?? {
+    title: '',
+    author: '',
+    publisher: '',
+    version: '',
+    genre: '',
+    synopsys: '',
+    year: '',
+    pages: 0,
+    price: 0,
+  };
+
+  // prevent validation error on edit route
+  modelData.cover = null;
+
+	const { data, setData, post, processing } = useForm(modelData);
+
+  const onHandleChange = (event) => {
+    setData(event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value);
+  };
+
+  const proceedForm = (e) => {
+  	e.preventDefault();
+  	submitHandler(data);
+  }
+
+	return (
+		<form onSubmit={proceedForm}>
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Title</label>
+        </div>
+        <div className="field-body">
+          <div className="field">
+            <div className="control">
+              <Input
+                type="text"
+                name="title"
+                value={data.title}
+                className={`input ${errors.title && 'is-danger'}`}
+                placeholder="Title"
+                handleChange={onHandleChange}
+              />
+            </div>
+            {errors.title && <p className="help is-danger">{errors.title}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Author</label>
+        </div>
+        <div className="field-body">
+          <div className="field is-narrow">
+            <div className="control">
+              <Input
+                type="text"
+                name="author"
+                value={data.author}
+                className={`input ${errors.author && 'is-danger'}`}
+                placeholder="Author"
+                handleChange={onHandleChange}
+              />
+            </div>
+            {errors.author && <p className="help is-danger">{errors.author}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Genre</label>
+        </div>
+        <div className="field-body">
+          <div className="field is-narrow">
+            <div className="control">
+              <div className={`select is-fullwidth ${errors.genre && 'is-danger'}`}>
+                <Select name="genre" value={data.genre} handleChange={onHandleChange}>
+                  <option value="none">Select genre</option>
+                  <option value="science">Science</option>
+                  <option value="fiction">Fiction</option>
+                </Select>
+              </div>
+            </div>
+            {errors.genre && <p className="help is-danger">{errors.genre}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Version</label>
+        </div>
+        <div className="field-body">
+          <div className="field is-narrow">
+            <div className="control">
+              <div className={`select is-fullwidth ${errors.version && 'is-danger'}`}>
+                <Select name="version" value={data.version} handleChange={onHandleChange}>
+                  <option value="none">Select version</option>
+                  <option value="ebook">Ebook</option>
+                  <option value="printed">Printed</option>
+                </Select>
+              </div>
+            </div>
+            {errors.version && <p className="help is-danger">{errors.version}</p>}
+          </div>
+        </div>
+      </div>
+
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Publisher</label>
+        </div>
+        <div className="field-body">
+          <div className="field is-narrow">
+            <div className="control">
+              <Input
+                type="text"
+                name="publisher"
+                value={data.publisher}
+                className={`input ${errors.publisher && 'is-danger'}`}
+                placeholder="Publisher"
+                handleChange={onHandleChange}
+              />
+            </div>
+            {errors.publisher && <p className="help is-danger">{errors.publisher}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Synopsys</label>
+        </div>
+        <div className="field-body">
+          <div className="field">
+            <div className="control">
+              <Textarea 
+                name="synopsys"
+                value={data.synopsys}
+                className={`textarea ${errors.synopsys && 'is-danger'}`} 
+                rows="5" 
+                placeholder="Synopsys" 
+                handleChange={onHandleChange}
+              ></Textarea>
+            </div>
+            {errors.synopsys && <p className="help is-danger">{errors.synopsys}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Year</label>
+        </div>
+        <div className="field-body">
+          <div className="field is-narrow">
+            <div className="control">
+              <Input
+                type="text"
+                name="year"
+                value={data.year}
+                className={`input ${errors.year && 'is-danger'}`}
+                placeholder="YYYY"
+                handleChange={onHandleChange}
+              />
+            </div>
+            {errors.year && <p className="help is-danger">{errors.year}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Pages</label>
+        </div>
+        <div className="field-body">
+          <div className="field is-narrow">
+            <div className="control">
+              <Input
+                type="number"
+                name="pages"
+                value={data.pages}
+                className={`input ${errors.pages && 'is-danger'}`}
+                placeholder="Pages"
+                handleChange={onHandleChange}
+              />
+            </div>
+            {errors.pages && <p className="help is-danger">{errors.pages}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Price</label>
+        </div>
+        <div className="field-body">
+          <div className="field is-narrow">
+            <div className="control">
+              <Input
+                type="number"
+                name="price"
+                value={data.price}
+                className={`input ${errors.price && 'is-danger'}`}
+                placeholder="Price"
+                handleChange={onHandleChange}
+              />
+            </div>
+            {errors.price && <p className="help is-danger">{errors.price}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="field is-horizontal">
+        <div className="field-label is-normal">
+          <label className="label">Cover</label>
+        </div>
+        <div className="field-body">
+          <div className="field is-narrow">
+            <div className="control">
+              <input name="cover" className={`input ${errors.cover && 'is-danger'}`} type="file" onChange={(e) => setData('cover', e.target.files[0]) } />
+            </div>
+            {errors.cover && <p className="help is-danger">{errors.cover}</p>}
+          </div>
+        </div>
+      </div>          
+
+      <div className="field is-horizontal">
+        <div className="field-label">
+          {/*Left empty for spacing*/}
+        </div>
+        <div className="field-body">
+          <div className="field">
+            <div className="control">
+              <button className="button is-primary is-uppercase">
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+	);
+}

@@ -1,0 +1,134 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\[model];
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use File;
+
+class [class] extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        return Inertia::render('[resource]/Index', [
+            'filters' => $request->only('search'),
+            '[resource_data]' => [model]::orderByDesc('id')
+                ->filter($request->only('search'))
+                ->paginate()
+                ->appends($request->all()),
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return Inertia::render('[resource]/Create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate($this->getValidationRules());
+        [model]::create($data);
+        session()->flash('message', 'New data stored!');
+        return redirect()->route('[resource_data].index');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit([model] $[data])
+    {
+        return Inertia::render('[resource]/Edit', ['[data]' => $[data]]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, [model] $[data])
+    {
+        $data = $request->validate($this->getValidationRules());
+        $[data]->update($data);
+        session()->flash('message', '[model] data updated!');
+        return redirect()->route('[resource_data].index');
+
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy([model] $[data])
+    {
+        if (request()->get('mode') === 'batch') {
+            $items = json_decode(request()->get('items'));
+            $covers = [model]::whereIn('id', $items)
+                ->whereNotNull('cover')
+                ->pluck('cover')
+            //->filter(fn($cover) => ! is_null($cover))
+                ->map(fn($cover) => storage_path('app/' . $cover))
+                ->toArray();
+            File::delete($covers);
+            [model]::whereIn('id', $items)->delete();
+        } else {
+            File::delete(storage_path('app/' . $[data]->cover));
+            $[data]->delete();
+        }
+        $message = '[model] with id ' . $[data]->id . ' removed!';
+        session()->flash('message', $message);
+        return redirect()->route('[resource_data].index');
+    }
+
+    public function getValidationRules()
+    {
+        $rules = [
+            'title' => 'required',
+            'author' => 'required',
+            'publisher' => 'required',
+            'synopsys' => 'required',
+            'genre' => 'required|not_in:none',
+            'version' => 'required|not_in:none',
+            'year' => 'required|date_format:Y',
+            'pages' => 'required|numeric',
+            'price' => 'required|numeric',
+            'cover' => 'nullable|image',
+        ];
+
+        return $rules;
+    }
+}

@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
+
+class [model] extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'title',
+        'author',
+        'publisher',
+        'genre',
+        'synopsys',
+        'year',
+        'pages',
+        'price',
+        'version',
+        'cover'
+    ];
+
+    public function setCoverAttribute($cover)
+    {
+        if(!$cover) return;
+
+        $this->attributes['cover'] = $cover instanceof UploadedFile ? $cover->store('covers') : $cover;
+    }
+
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where('title', 'like', '%'.$search.'%');
+        });
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "name": "realcahsowan/reinbul",
+    "description": "Simple resource generator for Inertia React and Bulma combo",
+    "autoload": {
+        "psr-4": {
+            "RealCahsowan\\Reinbul\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Taufik Rahman",
+            "email": "cahsowan18@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "RealCahsowan\\Reinbul\\ReinbulServiceProvider"
+            ]
+        }
+    },
+    "require": {}
+}
