@@ -22,7 +22,7 @@ export default function Index() {
   }
 
   const handleBatchDelete = () => {
-    const batchDeleteRoute = route('[resource_data].destroy', {[resource_data]:ids[0], mode: 'batch', items: JSON.stringify(checkedItems)});
+    const batchDeleteRoute = route('[resource_data].destroy', {[data]:ids[0], mode: 'batch', items: JSON.stringify(checkedItems)});
     confirmDelete(batchDeleteRoute);
   }
 
