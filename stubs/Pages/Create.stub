@@ -10,7 +10,7 @@ export default () => {
   const { users, auth, errors } = usePage().props;
 
   const sendForm = (data) => {
-    Inertia.post(route('[resource_data].store'), data, {
+    Inertia.post(route('[route_name].store'), data, {
       forceFormData: true,
     });
   }
@@ -25,11 +25,11 @@ export default () => {
 
       <div className="level">
         <div className="level-left">
-          <Link href={route('[resource_data].index')} className="button is-primary">
+          <Link href={route('[route_name].index')} className="button is-primary">
             <span className="icon">
               <FontAwesomeIcon icon={faLongArrowAltLeft}></FontAwesomeIcon>
             </span>
-            <span>[resource] List</span>
+            <span>[resource_label] List</span>
           </Link>
         </div>
       </div>

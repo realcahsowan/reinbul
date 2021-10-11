@@ -11,7 +11,7 @@ export default () => {
 
   const sendForm = (data) => {
     data._method = 'put';
-    Inertia.post(route('[resource_data].update', [data].id), data, {
+    Inertia.post(route('[route_name].update', [data].id), data, {
       forceFormData: true,
     });
   }
@@ -26,11 +26,11 @@ export default () => {
 
       <div className="level">
         <div className="level-left">
-          <Link href={route('[resource_data].index')} className="button is-primary">
+          <Link href={route('[route_name].index')} className="button is-primary">
             <span className="icon">
               <FontAwesomeIcon icon={faLongArrowAltLeft}></FontAwesomeIcon>
             </span>
-            <span>[resource] List</span>
+            <span>[resource_label] List</span>
           </Link>
         </div>
       </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers[prefix];
 
 use App\Models\[model];
 use Illuminate\Http\Request;
@@ -46,7 +46,7 @@ class [class] extends Controller
         $data = $request->validate($this->getValidationRules());
         [model]::create($data);
         session()->flash('message', 'New data stored!');
-        return redirect()->route('[resource_data].index');
+        return redirect()->route('[route_name].index');
     }
 
     /**
@@ -83,7 +83,7 @@ class [class] extends Controller
         $data = $request->validate($this->getValidationRules());
         $[data]->update($data);
         session()->flash('message', '[model] data updated!');
-        return redirect()->route('[resource_data].index');
+        return redirect()->route('[route_name].index');
 
     }
 
@@ -111,7 +111,7 @@ class [class] extends Controller
         }
         $message = '[model] with id ' . $[data]->id . ' removed!';
         session()->flash('message', $message);
-        return redirect()->route('[resource_data].index');
+        return redirect()->route('[route_name].index');
     }
 
     public function getValidationRules()

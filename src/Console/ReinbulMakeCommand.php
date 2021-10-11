@@ -8,12 +8,15 @@ use Illuminate\Support\Str;
 
 class ReinbulMakeCommand extends GeneratorCommand
 {
-    protected $signature = "make:reinbul {name} {--factory}";
+    protected $signature = "make:reinbul {name} {--factory} {--prefix=}";
     protected $description = "Generate REINBUL resource files.";
 
     public function handle()
     {
-        $name = $this->argument("name");
+        $name = Str::slug($this->argument("name"));
+        $prefix = $this->option('prefix');
+        $prefixRoute = !is_null($prefix) ? Str::slug($prefix) . '.' : '';
+        $prefixNamespace = !is_null($prefix) ? Str::studly($prefix) : '';
         $message =
             "Resources file for " .
             $name .
@@ -21,12 +24,14 @@ class ReinbulMakeCommand extends GeneratorCommand
 
         $routeText =
         "Route::resource('" .
-        Str::plural(Str::lower($name)) .
+        $prefixRoute .
+        Str::plural(Str::slug($name)) .
         "', Controllers\\" .
-        Str::plural(Str::title($name)) .
+        $prefixNamespace . "\\" .
+        Str::plural(Str::studly($name)) .
             "Controller::class);";
 
-        // Generate model file
+        // START
         File::put(
             $this->getModelPath($name),
             $this->getResourceContent($name, "model")
@@ -40,17 +45,17 @@ class ReinbulMakeCommand extends GeneratorCommand
 
         // Generate controller file
         File::put(
-            $this->getControllerPath($name),
-            $this->getResourceContent($name, "controller")
+            $this->getControllerPath($name, $prefixNamespace),
+            $this->getResourceContent($name, "controller", $prefixNamespace)
         );
 
         // Generate pages view file
-        foreach ($this->getPagesPath($name) as $type => $path) {
+        foreach ($this->getPagesPath($name, $prefixNamespace) as $type => $path) {
             if (!File::exists(File::dirname($path))) {
                 File::makeDirectory(File::dirname($path));
             }
 
-            File::put($path, $this->getResourceContent($name, $type));
+            File::put($path, $this->getResourceContent($name, $type, $prefixNamespace));
         }
 
         // Generate factory file
@@ -62,6 +67,7 @@ class ReinbulMakeCommand extends GeneratorCommand
                 $this->getResourceContent($name, "factory")
             );
         }
+        // END
 
         $this->info($message);
         $this->warn($routeText);
@@ -69,12 +75,12 @@ class ReinbulMakeCommand extends GeneratorCommand
 
     public function getModelPath($name)
     {
-        return app_path("Models/" . Str::title($name) . ".php");
+        return app_path("Models/" . Str::studly($name) . ".php");
     }
 
     public function getFactoryPath($name)
     {
-        return base_path("database/factories/" . Str::title($name) . "Factory.php");
+        return base_path("database/factories/" . Str::studly($name) . "Factory.php");
     }
 
     public function getMigrationPath($name)
@@ -83,56 +89,86 @@ class ReinbulMakeCommand extends GeneratorCommand
             "database/migrations/" .
             date("Y_m_d_His") .
             "_create_" .
-            Str::plural(Str::lower($name)) .
+            Str::plural(Str::slug($name, '_')) .
             "_table.php"
         );
     }
 
-    public function getControllerPath($name)
+    public function getControllerPath($name, $prefixNamespace)
     {
-        return app_path(
-            "Http/Controllers/" .
-            Str::plural(Str::title($name)) .
-            "Controller.php"
-        );
+        $path = "Http/Controllers/" .
+                Str::plural(Str::studly($name)) .
+                "Controller.php";
+
+        if (! empty($prefixNamespace)) {
+            $path = "Http/Controllers/" . 
+                    $prefixNamespace . '/' .
+                    Str::plural(Str::studly($name)) .
+                    "Controller.php";
+
+            if (!File::exists(File::dirname(app_path($path)))) {
+                File::makeDirectory(File::dirname(app_path($path)));
+            }
+        }
+
+        return app_path($path);
     }
 
-    public function getPagesPath($name)
+    public function getPagesPath($name, $prefixNamespace)
     {
+        if (! empty($prefixNamespace)) {
+            $prefix_path = resource_path("js/Pages/" . $prefixNamespace);
+            if (!File::exists($prefix_path)) {
+                File::makeDirectory($prefix_path);
+            }
+        }
+
         return [
             "pages_index" => resource_path(
-                "js/Pages/" . Str::plural(Str::title($name)) . "/Index.js"
+                "js/Pages/" . (! empty($prefixNamespace) ? $prefixNamespace . '/' : '') . Str::plural(Str::studly($name)) . "/Index.js"
             ),
             "pages_create" => resource_path(
-                "js/Pages/" . Str::plural(Str::title($name)) . "/Create.js"
+                "js/Pages/" . (! empty($prefixNamespace) ? $prefixNamespace . '/' : '') . Str::plural(Str::studly($name)) . "/Create.js"
             ),
             "pages_edit" => resource_path(
-                "js/Pages/" . Str::plural(Str::title($name)) . "/Edit.js"
+                "js/Pages/" . (! empty($prefixNamespace) ? $prefixNamespace . '/' : '') . Str::plural(Str::studly($name)) . "/Edit.js"
             ),
             "pages_form" => resource_path(
-                "js/Pages/" . Str::plural(Str::title($name)) . "/Form.js"
+                "js/Pages/" . (! empty($prefixNamespace) ? $prefixNamespace . '/' : '') . Str::plural(Str::studly($name)) . "/Form.js"
             ),
         ];
     }
 
-    public function getResourceContent($name, $type)
+    public function getResourceContent($name, $type, $prefixNamespace = null)
     {
         $content = $this->getStubContent($type);
-        $model = Str::title($name);
-        $data = Str::lower($name);
-        $resource = Str::plural(Str::title($name));
-        $resource_data = Str::plural(Str::lower($name));
-        $controller = Str::plural(Str::title($name)) . "Controller";
+        $model = Str::studly($name);
+        $data = Str::slug($name, '_');
+        $resource = Str::plural(Str::studly($name));
+        $resource_label = Str::title(str_replace('_', ' ', $data));
+        $resource_data = Str::plural(Str::slug($name, '_'));
+        $route_name = Str::plural(Str::slug($name, '-'));
+        $controller = Str::plural(Str::studly($name)) . "Controller";
+        $prefix = '';
+
+        if (! empty($prefixNamespace)) {
+            $prefix = '\\' . $prefixNamespace;
+            $resource = $prefixNamespace . '/' . $resource;
+            $route_name = Str::slug($prefixNamespace) . '.' . $route_name;
+        }
 
         return preg_replace(
             [
                 "/\[class\]/",
                 "/\[resource\]/",
+                "/\[resource_label\]/",
                 "/\[resource_data\]/",
+                "/\[route_name\]/",
                 "/\[model\]/",
                 "/\[data\]/",
+                "/\[prefix\]/",
             ],
-            [$controller, $resource, $resource_data, $model, $data],
+            [$controller, $resource, $resource_label, $resource_data, $route_name, $model, $data, $prefix],
             $content
         );
     }
